@@ -3,25 +3,38 @@
     <SelfLoading v-if="loading"></SelfLoading>
       <button class="btn btn-primary" @click="Load_task">reload</button>
       <div class="sub_contenus" v-for="tache in taches" :key="tache">
-          <div class="sub_contenu">
-              <button disabled='disabled'>@{{ tache.id }}</button>
-              <a href="#">{{ tache.nom }} </a>
-              <button @click="test" :ref="tache.id" :id="tache.id" >ok</button>
-          </div>
+        <div class="sub_contenu">
+          <button disabled='disabled'>@{{ tache.id }}</button>
+          <button :id="tache.id" @click="popup_add" style="border: none; background-color: inherit; cursor: pointer; color: blue;" >{{ tache.nom }} </button>
+          <button>ok</button>
+        </div>
       </div>
+      <Modal v-if="detail" @close="popup_rm" type='taskDetail' :data="donnees">
+        <template v-slot:header>
+          <h1>
+            Details de la tache <b><u>{{donnees.nom}}</u></b>
+          </h1>
+        </template>
+      </Modal>
     </div>
 </template>
 
 <script>
 import axios from 'axios'
 import SelfLoading from './SelfLoading.vue'
+import Modal from './Modal.vue'
 export default {
-  components: { SelfLoading },
+  components: {
+    SelfLoading,
+    Modal
+  },
   name: 'Task',
   data () {
     return {
       taches: {},
-      loading: false
+      loading: false,
+      detail: false,
+      donnees: {}
     }
   },
   mounted () {
@@ -67,9 +80,20 @@ export default {
         }
       )
     },
-    test (e) {
-      console.log(this.$refs['34'])
-      this.$refs['34'].addClass('test')
+    popup_add: function (e) {
+      console.log('pop up')
+      let id = e.path[0].id
+      for (let t in this.taches) {
+        console.log(t)
+        console.log(this.taches[t].id)
+        if (this.taches[t].id === parseInt(id)) {
+          this.donnees = this.taches[t]
+        }
+      }
+      this.detail = true
+    },
+    popup_rm: function () {
+      this.detail = false
     }
   }
 }

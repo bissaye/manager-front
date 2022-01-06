@@ -82,7 +82,7 @@ export default {
       projets: {},
       nom_proj: '',
       form: {
-        projet: 0,
+        projet: null,
         user: this.$store.state.user_id,
         nom: '',
         description: '',
@@ -90,7 +90,7 @@ export default {
         priorite: '',
         duree_estimee: '',
         unite_duree: '',
-        jour: '',
+        jour: null,
         deadline: '',
         etat: ''
       }
