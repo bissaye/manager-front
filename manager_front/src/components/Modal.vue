@@ -13,6 +13,7 @@
         <TaskForm v-if="choix === 'task'" @close="close"></TaskForm>
         <ProjectForm v-if="choix === 'project'" @close="close"></ProjectForm>
         <TaskDetail v-if="choix === 'taskDetail'" @close="close" :data="Data"></TaskDetail>
+        <ProjectDetail v-if="choix === 'ProjectDetail'" @close="close" :data="Data"></ProjectDetail>
       </div>
 
       <footer class="modal-footer">
@@ -28,6 +29,7 @@
 import TaskForm from './TaskForm'
 import ProjectForm from './ProjectForm.vue'
 import TaskDetail from './TaskDetail.vue'
+import ProjectDetail from './ProjectDetail.vue'
 export default {
   name: 'Modal',
   props: ['type', 'data'],
@@ -45,7 +47,8 @@ export default {
   components: {
     TaskForm,
     ProjectForm,
-    TaskDetail
+    TaskDetail,
+    ProjectDetail
   }
 }
 </script>

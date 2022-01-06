@@ -5,23 +5,36 @@
       <div class="sub_contenus" v-for="projet in projets" :key="projet">
         <div class="sub_contenu">
           <button disabled='disabled'>{{ projet.id }}</button>
-          <a href="#">{{ projet.nom }}</a>
+          <button :id="projet.id" @click="popup_add" style="border: none; background-color: inherit; cursor: pointer; color: blue;" >{{ projet.nom }}</button>
           <button>ok</button>
         </div>
       </div>
+      <Modal v-if="detail" @close="popup_rm" type='ProjectDetail' :data="donnees">
+        <template v-slot:header>
+          <h1>
+            Details du projet <b><u>{{donnees.nom}}</u></b>
+          </h1>
+        </template>
+      </Modal>
     </div>
 </template>
 
 <script>
 import axios from 'axios'
 import SelfLoading from './SelfLoading.vue'
+import Modal from './Modal.vue'
 export default {
-  components: { SelfLoading },
+  components: {
+    SelfLoading,
+    Modal
+  },
   name: 'Projects',
   data () {
     return {
       projets: {},
-      loading: false
+      loading: false,
+      detail: false,
+      donnees: {}
     }
   },
   mounted () {
@@ -68,6 +81,21 @@ export default {
           }
         }
       )
+    },
+    popup_add: function (e) {
+      console.log('pop up')
+      let id = e.path[0].id
+      for (let p in this.projets) {
+        console.log(p)
+        console.log(this.projets[p].id)
+        if (this.projets[p].id === parseInt(id)) {
+          this.donnees = this.projets[p]
+        }
+      }
+      this.detail = true
+    },
+    popup_rm: function () {
+      this.detail = false
     }
   }
 }
