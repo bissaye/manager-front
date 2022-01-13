@@ -68,6 +68,7 @@ export default {
       ).then(
         (res) => {
           this.taches = res.data
+          console.log(this.taches)
           console.log('obtention des taches succes')
           this.loading = false
         }
@@ -94,6 +95,7 @@ export default {
     },
     popup_rm: function () {
       this.detail = false
+      this.Load_task()
     }
   }
 }

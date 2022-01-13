@@ -33,18 +33,8 @@
           </select>
         </div>
         <div class="form-group row">
-          <label for="duree_estimee" class="col">duree estimee</label>
+          <label for="duree_estimee" class="col">duree estimee en heures</label>
           <input type="number" class="form-control col" min="0" name="duree_estimee" v-model="form.duree_estimee">
-          <label for="unite_duree" class="col"> En</label>
-          <select class="form-control col" name="unite_duree" v-model="form.unite_duree">
-            <option>secondes</option>
-            <option>mins</option>
-            <option>heures</option>
-            <option>jours</option>
-            <option>semaines</option>
-            <option>mois</option>
-            <option>annees</option>
-          </select>
         </div>
         <div class="form-group row">
           <label for="jour" class="col">jour prevu pour le debut</label>
@@ -89,7 +79,6 @@ export default {
         type: '',
         priorite: '',
         duree_estimee: '',
-        unite_duree: '',
         jour: null,
         deadline: '',
         etat: ''

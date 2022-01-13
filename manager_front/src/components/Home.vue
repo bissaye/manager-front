@@ -71,7 +71,6 @@ export default {
       console.log('pop up close')
       this.popup_add_task = false
       this.popup_add_project = false
-      this.update()
     },
     select_tache: function (e) {
       console.log('tache')
