@@ -53,7 +53,7 @@ export default {
   methods: {
     auth () {
       console.log('refresh')
-      axios.post('http://localhost:8000/manager/token/refresh/', {'refresh': this.$store.state.refresh})
+      axios.post(this.$store.state.host + 'manager/token/refresh/', {'refresh': this.$store.state.refresh})
         .then(
           (res) => {
             console.log(res.data)
@@ -70,7 +70,7 @@ export default {
     addProject () {
       this.loading = true
       console.log(this.form)
-      axios.post('http://localhost:8000/projet/', this.form, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
+      axios.post(this.$store.state.host + 'projet/', this.form, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
         .then(
           (res) => {
             console.log('ok')

@@ -8,7 +8,11 @@ export default new Vuex.Store({
     access: '',
     refresh: '',
     user_id: 0,
-    logged: false
+    logged: false,
+    taches: null,
+    projets: null,
+    today: true,
+    host: 'http://managerapi.herokuapp.com/'
   },
   mutations: {
   },

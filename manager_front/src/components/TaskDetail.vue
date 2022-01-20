@@ -96,7 +96,7 @@ export default{
   methods: {
     auth () {
       console.log('refresh')
-      axios.post('http://localhost:8000/manager/token/refresh/', {'refresh': this.$store.state.refresh})
+      axios.post(this.$store.state.host + 'manager/token/refresh/', {'refresh': this.$store.state.refresh})
         .then(
           (res) => {
             console.log(res.data)
@@ -113,7 +113,7 @@ export default{
     Load_project () {
       console.log('requete vers projets')
       axios.get(
-        'http://localhost:8000/projet_user/',
+        this.$store.state.host + 'projet_user/',
         {headers: {
           Authorization: 'Bearer ' + this.$store.state.access
         }}

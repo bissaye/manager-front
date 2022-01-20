@@ -59,10 +59,15 @@ export default ({
   components: {
     SelfLoading
   },
+  mounted () {
+    if (this.$store.state.logged) {
+      this.$router.push('/home')
+    }
+  },
   methods: {
     auth: function () {
       this.loading = true
-      axios.post('http://localhost:8000/manager/token/', this.form)
+      axios.post(this.$store.state.host + 'manager/token/', this.form)
         .then((res) => {
           if (res.status === 200) {
             res = res.data
@@ -70,28 +75,15 @@ export default ({
             this.$store.state.refresh = res.refresh
             this.$store.state.logged = true
 
-            axios.get('http://localhost:8000/test_user/', {headers: {
-              Authorization: 'Bearer ' + this.$store.state.access
-            }}).then((res) => {
-              if (res.status === 200) {
-                res = res.data
-                this.$store.state.user_id = res.id
-                this.$router.push('/home')
-                this.error = false
-                this.loading = false
-              } else {
-                this.error = true
-                this.loading = false
-              }
-            }).catch((e) => {
-              console.log(e)
-              this.error = true
-              this.loading = false
-            })
+            this.Load_task()
+            this.Load_project()
+            this.User_id()
 
             console.log('succes')
             this.error = false
             this.loading = false
+
+            this.$router.push('/home')
           } else {
             this.error = true
             this.loading = false
@@ -101,6 +93,74 @@ export default ({
           this.error = true
           this.loading = false
         })
+    },
+    User_id () {
+      this.loading = true
+      console.log('requete pour user id')
+      axios.get(
+        this.$store.state.host + 'userid/',
+        {headers: {
+          Authorization: 'Bearer ' + this.$store.state.access
+        }}
+      ).then(
+        (res) => {
+          this.$store.state.user_id = res.data.id
+          console.log('obtention de l\'id succes')
+          this.loading = false
+        }
+      ).catch(
+        (e) => {
+          if (e.response.status === 401) {
+            this.auth()
+            this.loading = false
+          }
+        }
+      )
+    },
+    Load_task () {
+      this.loading = true
+      console.log('requete vers taches')
+      axios.get(
+        this.$store.state.host + 'taches_user/',
+        {headers: {
+          Authorization: 'Bearer ' + this.$store.state.access
+        }}
+      ).then(
+        (res) => {
+          this.$store.state.taches = res.data
+          console.log('obtention des taches succes')
+        }
+      ).catch(
+        (e) => {
+          if (e.response.status === 401) {
+            this.auth()
+            this.loading = false
+          }
+        }
+      )
+    },
+    Load_project () {
+      this.loading = true
+      console.log('requete vers projets')
+      axios.get(
+        this.$store.state.host + 'projet_user/',
+        {headers: {
+          Authorization: 'Bearer ' + this.$store.state.access
+        }}
+      ).then(
+        (res) => {
+          this.$store.state.projets = res.data
+          console.log('obtention des projets succes')
+          this.loading = false
+        }
+      ).catch(
+        (e) => {
+          if (e.response.status === 401) {
+            this.auth()
+            this.loading = false
+          }
+        }
+      )
     }
   }
 

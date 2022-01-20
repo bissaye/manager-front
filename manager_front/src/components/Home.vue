@@ -7,9 +7,10 @@
             <router-link to="/" class="navbar-brand"><img src="../assets/img/avatar.png" height="100"></router-link>
         </header>
         <div class="contenus">
-            <div class="form-group text-center" style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
-              <button @click="this.popup_add" class="input-group-text text-center" id="inputGroup-sizing-default" style="border: 3px solid black; border-radius: 10px; width: 50px; height: 30px;" >add</button>
-              <button class="input-group-text text-center" id="inputGroup-sizing-default" style="border: 3px solid black; border-radius: 10px; width: 50px; height: 30px;" >all</button>
+            <div class="form-group row " style="display: flex; flex-direction: row; justify-content: space-between; width: 500px;">
+              <button @click="this.popup_add" class="form-control col" >add</button>
+              <button @click="this.NotAll" class="form-control col selected" id="inputGroup-sizing-default" :style="today_selected">today</button>
+              <button @click="this.All" class="form-control col selected" id="inputGroup-sizing-default" :style="all_selected">all </button>
             </div>
 
             <Modal v-if="popup_add_task" @close="popup_rm" type='task'>
@@ -59,8 +60,13 @@ export default {
     }
   },
   methods: {
-    update () {
-      this.$forceUpdate()
+    NotAll: function (e) {
+      console.log('toutes du jour')
+      this.$store.state.today = true
+    },
+    All: function (e) {
+      console.log('toutes les taches')
+      this.$store.state.today = false
     },
     popup_add: function (e) {
       console.log('pop up')
@@ -97,6 +103,20 @@ export default {
         return 'selected'
       }
       return ''
+    },
+    today_selected: function () {
+      if (this.$store.state.today) {
+        return 'border-bottom: 4px solid rgb(218, 134, 134) ; border-left: 4px solid rgb(218, 134, 134) ; border-right: 4px solid rgb(218, 134, 134) ;'
+      } else {
+        return ''
+      }
+    },
+    all_selected: function () {
+      if (this.$store.state.today) {
+        return ''
+      } else {
+        return 'border-bottom: 4px solid rgb(218, 134, 134); border-left: 4px solid rgb(218, 134, 134) ; border-right: 4px solid rgb(218, 134, 134) ;'
+      }
     }
   }
 }
@@ -131,7 +151,7 @@ export default {
 }
 
 .home_header .selected{
-  border-bottom: 4px solid red ;
+  border-bottom: 4px solid rgb(218, 134, 134) ;
 }
 
 .contenus{

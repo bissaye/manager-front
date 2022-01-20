@@ -34,7 +34,7 @@
         </div>
         <div class="form-group row">
           <label for="duree_estimee" class="col">duree estimee en heures</label>
-          <input type="number" class="form-control col" min="0" name="duree_estimee" v-model="form.duree_estimee">
+          <input type="number" class="form-control col" min="0" max="24" name="duree_estimee" v-model="form.duree_estimee">
         </div>
         <div class="form-group row">
           <label for="jour" class="col">jour prevu pour le debut</label>
@@ -69,7 +69,7 @@ export default {
     return {
       error: false,
       loading: false,
-      projets: {},
+      projets: this.$store.state.projets,
       nom_proj: '',
       form: {
         projet: null,
@@ -88,7 +88,7 @@ export default {
   methods: {
     auth () {
       console.log('refresh')
-      axios.post('http://localhost:8000/manager/token/refresh/', {'refresh': this.$store.state.refresh})
+      axios.post(this.$store.state.host + 'manager/token/refresh/', {'refresh': this.$store.state.refresh})
         .then(
           (res) => {
             console.log(res.data)
@@ -101,27 +101,6 @@ export default {
             }
           }
         )
-    },
-    Load_project () {
-      console.log('requete vers projets')
-      axios.get(
-        'http://localhost:8000/projet_user/',
-        {headers: {
-          Authorization: 'Bearer ' + this.$store.state.access
-        }}
-      ).then(
-        (res) => {
-          this.projets = res.data
-          console.log('obtention des projets succes')
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            this.auth()
-            this.Load_project()
-          }
-        }
-      )
     },
     ObtainProjectID () {
       console.log('debut obtention de la cle du projet')
@@ -138,9 +117,10 @@ export default {
       this.loading = true
       this.ObtainProjectID()
       console.log(this.form)
-      axios.post('http://localhost:8000/taches/', this.form, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
+      axios.post(this.$store.state.host + 'taches/', this.form, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
         .then(
           (res) => {
+            console.log(res.data)
             console.log('ok')
             this.loading = false
             this.close()
@@ -163,9 +143,6 @@ export default {
     close () {
       this.$emit('close')
     }
-  },
-  mounted () {
-    this.Load_project()
   }
 }
 </script>

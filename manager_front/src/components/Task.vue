@@ -1,21 +1,43 @@
 <template>
     <div>
-    <SelfLoading v-if="loading"></SelfLoading>
-      <button class="btn btn-primary" @click="Load_task">reload</button>
-      <div class="sub_contenus" v-for="tache in taches" :key="tache">
-        <div class="sub_contenu">
-          <button disabled='disabled'>@{{ tache.id }}</button>
-          <button :id="tache.id" @click="popup_add" style="border: none; background-color: inherit; cursor: pointer; color: blue;" >{{ tache.nom }} </button>
-          <button>ok</button>
+      <div>
+        <div>
+          <SelfLoading v-if="loading"></SelfLoading>
         </div>
+        <div class="dialog alert alert-danger" v-if="error">
+          request error <br>try again
+        </div>
+        <div>
+          <button class="btn btn-primary" @click="Load_task">reload</button>
+        </div>
+        <div v-if="this.$store.state.today === false">
+          <div class="sub_contenus" v-for="tache in taches" :key="tache">
+            <div :class="tache.etat==='termine' ? 'ok' : 'sub_contenu' ">
+              <button disabled='disabled'>@{{ tache.id }}</button>
+              <button :id="tache.id" @click="popup_add" style="border: none; background-color: inherit; cursor: pointer; color: blue;" >{{ tache.nom }} </button>
+              <button :id="tache.id" v-if="tache.etat === 'en cours'" @click="Terminer">ok</button>
+              <button :id="tache.id" v-if="tache.etat === 'termine'" @click="Rouvrir" style="border-color: green;"><i class="fas fa-check" style="color: green"></i></button>
+            </div>
+          </div>
+        </div>
+        <div v-if="this.$store.state.today === true">
+          <div class="sub_contenus" v-for="tache in todayTaches" :key="tache">
+            <div :class="tache.etat==='termine' ? 'ok' : 'sub_contenu'">
+              <button disabled='disabled'>@{{ tache.id }}</button>
+              <button :id="tache.id" @click="popup_add" style="border: none; background-color: inherit; cursor: pointer; color: blue;" >{{ tache.nom }} </button>
+              <button :id="tache.id" v-if="tache.etat === 'en cours'" @click="Terminer">ok</button>
+              <button :id="tache.id" v-if="tache.etat === 'termine'" @click="Rouvrir"><i class="fas fa-check"></i></button>
+            </div>
+          </div>
+        </div>
+        <Modal v-if="detail" @close="popup_rm" type='taskDetail' :data="donnees">
+          <template v-slot:header>
+            <h1>
+              Details de la tache <b><u>{{donnees.nom}}</u></b>
+            </h1>
+          </template>
+        </Modal>
       </div>
-      <Modal v-if="detail" @close="popup_rm" type='taskDetail' :data="donnees">
-        <template v-slot:header>
-          <h1>
-            Details de la tache <b><u>{{donnees.nom}}</u></b>
-          </h1>
-        </template>
-      </Modal>
     </div>
 </template>
 
@@ -29,12 +51,17 @@ export default {
     Modal
   },
   name: 'Task',
+  props: ['today'],
   data () {
     return {
+      error: false,
+      Today: this.$store.state.today,
       taches: {},
+      todayTaches: [],
       loading: false,
       detail: false,
-      donnees: {}
+      donnees: {},
+      modifs: {}
     }
   },
   mounted () {
@@ -42,7 +69,7 @@ export default {
   },
   methods: {
     auth () {
-      axios.post('http://localhost:8000/manager/token/refresh/', {'refresh': this.$store.state.refresh})
+      axios.post(this.$store.state.host + 'manager/token/refresh/', {'refresh': this.$store.state.refresh})
         .then(
           (res) => {
             console.log(res.data)
@@ -61,16 +88,28 @@ export default {
       this.loading = true
       console.log('requete vers taches')
       axios.get(
-        'http://localhost:8000/taches_user/',
+        this.$store.state.host + 'taches_user/',
         {headers: {
           Authorization: 'Bearer ' + this.$store.state.access
         }}
       ).then(
         (res) => {
+          this.todayTaches = []
           this.taches = res.data
+          this.$store.state.taches = this.taches
+          this.loading = false
           console.log(this.taches)
           console.log('obtention des taches succes')
-          this.loading = false
+          console.log('enclanchement obtention des taches du jour')
+          var dateDuJour = new Date(Date.now())
+          for (let index in this.taches) {
+            var dateTache = new Date(this.taches[index].jour)
+            if (dateTache.getFullYear() === dateDuJour.getFullYear() && dateTache.getMonth() === dateDuJour.getMonth() && dateTache.getDate() === dateDuJour.getDate()) {
+              this.todayTaches.push(this.taches[index])
+            }
+          }
+          console.log('obtention des taches du jour')
+          console.log(this.todayTaches)
         }
       ).catch(
         (e) => {
@@ -96,6 +135,74 @@ export default {
     popup_rm: function () {
       this.detail = false
       this.Load_task()
+    },
+    Terminer: function (e) {
+      this.loading = true
+      let id = e.path[0].id
+      for (let index in this.taches) {
+        if (this.taches[index].id === parseInt(id)) {
+          this.modifs = {}
+          this.modifs = this.taches[index]
+        }
+      }
+      this.modifs.etat = 'termine'
+      console.log(this.modifs)
+      axios.put(this.$store.state.host + 'taches/' + id + '/', this.modifs, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
+        .then(
+          (res) => {
+            console.log('modif ok')
+            this.loading = false
+            this.Load_task()
+            this.error = false
+          }
+        ).catch(
+          (e) => {
+            if (e.response.status === 401) {
+              this.auth()
+              this.loading = false
+              this.error = true
+            } else {
+              console.log(e.response)
+              this.loading = false
+              this.error = true
+            }
+          }
+        )
+    },
+    Rouvrir: function (e) {
+      this.loading = true
+      let id = e.path[1].id
+      console.log(id)
+      console.log('evenement')
+      console.log(e)
+      for (let index in this.taches) {
+        if (this.taches[index].id === parseInt(id)) {
+          this.modifs = {}
+          this.modifs = this.taches[index]
+        }
+      }
+      this.modifs.etat = 'en cours'
+      console.log(this.modifs)
+      axios.put(this.$store.state.host + 'taches/' + id + '/', this.modifs, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
+        .then(
+          (res) => {
+            console.log('modif ok')
+            this.loading = false
+            this.Load_task()
+          }
+        ).catch(
+          (e) => {
+            if (e.response.status === 401) {
+              this.auth()
+              this.loading = false
+              this.error = true
+            } else {
+              console.log(e.response)
+              this.loading = false
+              this.error = true
+            }
+          }
+        )
     }
   }
 }
@@ -116,7 +223,20 @@ export default {
    justify-content: space-between;
    align-items: center;
     border: 5px solid;
-    border-color: #000;
+    border-color: red;
+    border-radius: 10px;
+    width: 500px;
+    height: 10%;
+    margin: 10px;
+}
+
+.ok {
+    display: flex;
+   flex-direction: row;
+   justify-content: space-between;
+   align-items: center;
+    border: 5px solid;
+    border-color: green;
     border-radius: 10px;
     width: 500px;
     height: 10%;
@@ -125,6 +245,12 @@ export default {
 
 .sub_contenu button{
    border-radius: 19px;
+   background-color: #fff;
+}
+
+.ok button{
+  border-radius: 19px;
+  background-color: #fff;
 }
 
 @media only screen and (max-width: 600px){
