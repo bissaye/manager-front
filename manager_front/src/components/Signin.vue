@@ -74,7 +74,6 @@ export default ({
         console.log('signin error')
       } finally {
         this.$router.push('/home')
-        }
       }
     }
   }
