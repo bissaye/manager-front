@@ -16,11 +16,11 @@
         <ProjectDetail v-if="choix === 'ProjectDetail'" @close="close" :data="Data"></ProjectDetail>
       </div>
 
-      <footer class="modal-footer">
+      <!-- <footer class="modal-footer">
         <button type="button" class="btn-green" @click="close">
           Close Modal
         </button>
-      </footer>
+      </footer> -->
     </div>
   </div>
 </template>

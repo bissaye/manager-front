@@ -4,7 +4,7 @@
     <p class="lead">From small tasks to big initiatives, Manager helps teams organize their work so they know what to do, why and how. Let Manager take care of the repetitive tasks and focus on your core business. Track your team's projects and processes. Visualize your data in real time in the form of graphs and other visuals: share updates, identify any possible problems and keep your projects on track.</p>
     <p class="lead">
       <a href="#" class="btn btn-lg btn-outline-success">Learn more</a>
-      <router-link to="/home" class="btn btn-lg btn-outline-success">Get started</router-link>
+      <router-link to="/signin" class="btn btn-lg btn-outline-success">Get started</router-link>
     </p>
 </div>
 </template>

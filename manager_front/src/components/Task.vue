@@ -8,10 +8,10 @@
           request error <br>try again
         </div>
         <div>
-          <button class="btn btn-primary" @click="Load_task">reload</button>
+          <button class="btn btn-primary" @click="reload">reload</button>
         </div>
         <div v-if="this.$store.state.today === false">
-          <div class="sub_contenus" v-for="tache in taches" :key="tache">
+          <div class="sub_contenus" v-for="(tache, id) in taches" :key="id">
             <div :class="tache.etat==='termine' ? 'ok' : 'sub_contenu' ">
               <button disabled='disabled'>@{{ tache.id }}</button>
               <button :id="tache.id" @click="popup_add" style="border: none; background-color: inherit; cursor: pointer; color: blue;" >{{ tache.nom }} </button>
@@ -21,7 +21,7 @@
           </div>
         </div>
         <div v-if="this.$store.state.today === true">
-          <div class="sub_contenus" v-for="tache in todayTaches" :key="tache">
+          <div class="sub_contenus" v-for="(tache, id) in todayTaches" :key="id">
             <div :class="tache.etat==='termine' ? 'ok' : 'sub_contenu'">
               <button disabled='disabled'>@{{ tache.id }}</button>
               <button :id="tache.id" @click="popup_add" style="border: none; background-color: inherit; cursor: pointer; color: blue;" >{{ tache.nom }} </button>
@@ -56,69 +56,29 @@ export default {
     return {
       error: false,
       Today: this.$store.state.today,
-      taches: {},
-      todayTaches: [],
+      taches: this.$store.state.taches,
+      todayTaches: this.$store.state.todayTaches,
       loading: false,
       detail: false,
       donnees: {},
       modifs: {}
     }
   },
+
   mounted () {
-    this.Load_task()
+    this.error = false
+    this.Today = this.$store.state.today
+    this.taches = this.$store.state.taches
+    this.todayTaches = this.$store.state.todayTaches
+    this.loading = false
+    this.detail = false
+    this.donnees = {}
+    this.modifs = {}
   },
+
   methods: {
-    auth () {
-      axios.post(this.$store.state.host + 'manager/token/refresh/', {'refresh': this.$store.state.refresh})
-        .then(
-          (res) => {
-            console.log(res.data)
-            this.$store.state.access = res.data.access
-            this.Load_task()
-          }
-        ).catch(
-          (e) => {
-            if (e.response.status === 400) {
-              this.$router.push('/signin')
-            }
-          }
-        )
-    },
-    Load_task () {
-      this.loading = true
-      console.log('requete vers taches')
-      axios.get(
-        this.$store.state.host + 'taches_user/',
-        {headers: {
-          Authorization: 'Bearer ' + this.$store.state.access
-        }}
-      ).then(
-        (res) => {
-          this.todayTaches = []
-          this.taches = res.data
-          this.$store.state.taches = this.taches
-          this.loading = false
-          console.log(this.taches)
-          console.log('obtention des taches succes')
-          console.log('enclanchement obtention des taches du jour')
-          var dateDuJour = new Date(Date.now())
-          for (let index in this.taches) {
-            var dateTache = new Date(this.taches[index].jour)
-            if (dateTache.getFullYear() === dateDuJour.getFullYear() && dateTache.getMonth() === dateDuJour.getMonth() && dateTache.getDate() === dateDuJour.getDate()) {
-              this.todayTaches.push(this.taches[index])
-            }
-          }
-          console.log('obtention des taches du jour')
-          console.log(this.todayTaches)
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            this.auth()
-            this.loading = false
-          }
-        }
-      )
+    reload (e) {
+      this.$store.dispatch('Load_task')
     },
     popup_add: function (e) {
       console.log('pop up')
@@ -134,7 +94,6 @@ export default {
     },
     popup_rm: function () {
       this.detail = false
-      this.Load_task()
     },
     Terminer: function (e) {
       this.loading = true

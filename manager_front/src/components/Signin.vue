@@ -12,7 +12,7 @@
                 authentication error <br>try again
             </div>
             <form  @submit.prevent="auth">
-              <SelfLoading v-if="loading"></SelfLoading>
+              <SelfLoading v-if="this.$store.state.loading"></SelfLoading>
                 <div class='container '>
                     <div class="form-group">
                         <div class="input-group mb-3">
@@ -40,127 +40,44 @@
 </template>
 
 <script>
-import axios from 'axios'
 import SelfLoading from './SelfLoading.vue'
 
 export default ({
   name: 'Signin',
   data () {
     return {
-      loading: false,
+      // loading: this.$store.state.loading,
       form: {
         username: '',
         email: '',
         password: ''
       },
-      error: false
+      error: this.$store.state.error
     }
   },
   components: {
     SelfLoading
   },
   mounted () {
-    if (this.$store.state.logged) {
+    if (this.$session) {
       this.$router.push('/home')
     }
   },
   methods: {
-    auth: function () {
-      this.loading = true
-      axios.post(this.$store.state.host + 'manager/token/', this.form)
-        .then((res) => {
-          if (res.status === 200) {
-            res = res.data
-            this.$store.state.access = res.access
-            this.$store.state.refresh = res.refresh
-            this.$store.state.logged = true
-
-            this.Load_task()
-            this.Load_project()
-            this.User_id()
-
-            console.log('succes')
-            this.error = false
-            this.loading = false
-
-            this.$router.push('/home')
-          } else {
-            this.error = true
-            this.loading = false
-          }
-        }).catch((e) => {
-          console.log(e)
-          this.error = true
-          this.loading = false
-        })
-    },
-    User_id () {
-      this.loading = true
-      console.log('requete pour user id')
-      axios.get(
-        this.$store.state.host + 'userid/',
-        {headers: {
-          Authorization: 'Bearer ' + this.$store.state.access
-        }}
-      ).then(
-        (res) => {
-          this.$store.state.user_id = res.data.id
-          console.log('obtention de l\'id succes')
-          this.loading = false
+    auth () {
+      try {
+        console.log('obtention des datas')
+        this.$store.commit('SetForm', this.form)
+        console.log('auth')
+        this.$store.dispatch('auth')
+      } catch (e) {
+        console.log('signin error')
+      } finally {
+        if (localStorage.getItem('logged')) {
+          console.log('log in ok')
+          this.$router.push('/home')
         }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            this.auth()
-            this.loading = false
-          }
-        }
-      )
-    },
-    Load_task () {
-      this.loading = true
-      console.log('requete vers taches')
-      axios.get(
-        this.$store.state.host + 'taches_user/',
-        {headers: {
-          Authorization: 'Bearer ' + this.$store.state.access
-        }}
-      ).then(
-        (res) => {
-          this.$store.state.taches = res.data
-          console.log('obtention des taches succes')
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            this.auth()
-            this.loading = false
-          }
-        }
-      )
-    },
-    Load_project () {
-      this.loading = true
-      console.log('requete vers projets')
-      axios.get(
-        this.$store.state.host + 'projet_user/',
-        {headers: {
-          Authorization: 'Bearer ' + this.$store.state.access
-        }}
-      ).then(
-        (res) => {
-          this.$store.state.projets = res.data
-          console.log('obtention des projets succes')
-          this.loading = false
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            this.auth()
-            this.loading = false
-          }
-        }
-      )
+      }
     }
   }
 

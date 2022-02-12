@@ -1,8 +1,8 @@
 <template>
     <div>
       <SelfLoading v-if="loading"></SelfLoading>
-      <button class="btn btn-primary" @click="Load_project">reload</button>
-      <div class="sub_contenus" v-for="projet in projets" :key="projet">
+      <button class="btn btn-primary" @click="reload">reload</button>
+      <div class="sub_contenus" v-for="(projet, id) in projets" :key="id">
         <div class="sub_contenu">
           <button disabled='disabled'>{{ projet.id }}</button>
           <button :id="projet.id" @click="popup_add" style="border: none; background-color: inherit; cursor: pointer; color: blue;" >{{ projet.nom }}</button>
@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import SelfLoading from './SelfLoading.vue'
 import Modal from './Modal.vue'
 export default {
@@ -31,57 +30,23 @@ export default {
   name: 'Projects',
   data () {
     return {
-      projets: {},
+      projets: this.$store.state.projets,
       loading: false,
       detail: false,
       donnees: {}
     }
   },
-  mounted () {
-    this.Load_project()
-  },
-  methods: {
-    auth () {
-      console.log('refresh')
-      axios.post(this.$store.state.host + 'manager/token/refresh/', {'refresh': this.$store.state.refresh})
-        .then(
-          (res) => {
-            console.log(res.data)
-            this.$store.state.access = res.data.access
-            this.Load_project()
-          }
-        ).catch(
-          (e) => {
-            if (e.response.status === 400) {
-              this.$router.push('/signin')
-            }
-          }
-        )
-    },
 
-    Load_project () {
-      this.loading = true
-      console.log('requete vers projets')
-      axios.get(
-        this.$store.state.host + 'projet_user/',
-        {headers: {
-          Authorization: 'Bearer ' + this.$store.state.access
-        }}
-      ).then(
-        (res) => {
-          this.projets = res.data
-          this.$store.state.projets = this.projets
-          console.log('obtention des projets succes')
-          this.loading = false
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            this.auth()
-            this.loading = false
-          }
-        }
-      )
+  mounted () {
+    this.projets = this.$store.state.projets
+    this.loading = false
+    this.detail = false
+    this.donnees = {}
+  },
+
+  methods: {
+    reload (e) {
+      this.$store.dispatch('Load_project')
     },
     popup_add: function (e) {
       console.log('pop up')
