@@ -73,9 +73,7 @@ export default ({
       } catch (e) {
         console.log('signin error')
       } finally {
-        if (localStorage.getItem('logged')) {
-          console.log('log in ok')
-          this.$router.push('/home')
+        this.$router.push('/home')
         }
       }
     }
