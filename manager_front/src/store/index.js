@@ -19,10 +19,10 @@ export default new Vuex.Store({
     today: true,
 
     // host for production
-    // host: 'http://managerapi.herokuapp.com/'
+    host: 'http://managerapi.herokuapp.com/',
 
     // host for debug
-    host: 'http://localhost:8000/',
+    // host: 'http://localhost:8000/',
     form: {}
   },
 
