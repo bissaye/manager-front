@@ -21,6 +21,13 @@
           <textarea class="form-control" id="" name="description" rows="3" v-model="form.description"></textarea>
         </div>
         <div class="form-group">
+          <label for="asign">assigner a un utilisateur</label>
+          <select class="form-control" name="asign"  v-model="nom_user">
+            <option value=""> Aucun </option>
+            <option v-for="user in users" :key="user">{{ user.username }}</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="type">type</label>
           <input type="input" class="form-control" id="" placeholder="type de tache" name="type" v-model="form.type">
         </div>
@@ -70,10 +77,13 @@ export default {
       error: false,
       loading: false,
       projets: this.$store.state.projets,
+      users: this.$store.state.AllUsers,
       nom_proj: '',
+      nom_user: '',
       form: {
         projet: null,
         user: this.$store.state.user_id,
+        user_asign: null,
         nom: '',
         description: '',
         type: '',
@@ -105,17 +115,25 @@ export default {
     ObtainProjectID () {
       console.log('debut obtention de la cle du projet')
       for (let p in this.projets) {
-        console.log(p)
-        console.log(this.projets[p])
         if (this.projets[p].nom === this.nom_proj) {
           this.form.projet = this.projets[p].id
           console.log('id du projet obtenu')
         }
       }
     },
+    ObtainUserID () {
+      console.log('debut obtention user')
+      for (let u in this.users) {
+        if (this.users[u].username === this.nom_user) {
+          this.form.user_asign = this.users[u].id
+          console.log('user obtenu')
+        }
+      }
+    },
     addTask () {
       this.loading = true
       this.ObtainProjectID()
+      this.ObtainUserID()
       console.log(this.form)
       axios.post(this.$store.state.host + 'taches/', this.form, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
         .then(

@@ -1,6 +1,23 @@
 <template>
     <div>
         <div class="display">
+            <div class="form-group" v-if="user_id === donne.user">
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-default">initiee par vous pour</span>
+                </div>
+                <input v-if="nomUserAssign === null" type="text" class="form-control" aria-describedby="inputGroup-sizing-default" value="vous" readonly style="background-color: inherit;">
+                <input v-if="nomUserAssign !== null" type="text" class="form-control" aria-describedby="inputGroup-sizing-default" :value="nomUserAssign" readonly style="background-color: inherit;">
+                </div>
+            </div>
+            <div class="form-group" v-if="user_id !== donne.user">
+                <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-default">initiee par</span>
+                </div>
+                <input  type="text" class="form-control" aria-describedby="inputGroup-sizing-default" :value="nomUser" readonly style="background-color: inherit;">
+                </div>
+            </div>
             <div class="form-group">
                 <div class="input-group mb-3">
                 <div class="input-group-prepend">
@@ -86,12 +103,19 @@ export default{
     return {
       donne: this.data,
       nomPorjet: '',
-      projets: {}
+      nomUserAssign: null,
+      nomUser: null,
+      projets: this.$store.state.projets,
+      users: this.$store.state.AllUsers,
+      user_id: this.$store.state.user_id
     }
   },
   mounted () {
     console.log(this.data)
-    this.Load_project()
+    console.log('nom user' + this.nomUser)
+    this.ObtainProjectName()
+    this.nomUserAssign = this.ObtainUserName(this.donne.user_asign)
+    this.nomUser = this.ObtainUserName(this.donne.user)
   },
   methods: {
     auth () {
@@ -110,28 +134,6 @@ export default{
           }
         )
     },
-    Load_project () {
-      console.log('requete vers projets')
-      axios.get(
-        this.$store.state.host + 'projet_user/',
-        {headers: {
-          Authorization: 'Bearer ' + this.$store.state.access
-        }}
-      ).then(
-        (res) => {
-          this.projets = res.data
-          console.log('obtention des projets succes')
-          this.ObtainProjectName()
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            this.auth()
-            this.Load_project()
-          }
-        }
-      )
-    },
     ObtainProjectName () {
       console.log('debut obtention du nom du projet')
       for (let p in this.projets) {
@@ -140,6 +142,16 @@ export default{
           console.log('nom du projet obtenu')
         }
       }
+    },
+    ObtainUserName (id) {
+      console.log('debut obtention du nom du user')
+      for (let u in this.users) {
+        if (this.users[u].id === id) {
+          console.log('nom du user obtenu')
+          return this.users[u].username
+        }
+      }
+      return null
     }
   }
 }

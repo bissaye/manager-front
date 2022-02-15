@@ -10,6 +10,7 @@ export default new Vuex.Store({
     access: '',
     refresh: '',
     user_id: 0,
+    AllUsers: null,
     logged: false,
     error: false,
     loading: false,
@@ -45,6 +46,7 @@ export default new Vuex.Store({
             context.dispatch('User_id')
             context.dispatch('Load_task')
             context.dispatch('Load_project')
+            context.dispatch('Load_Users')
 
             context.state.error = false
             context.state.loading = false
@@ -151,8 +153,47 @@ export default new Vuex.Store({
       ).catch(
         (e) => {
           if (e.response.status === 401) {
-            context.dispatch('auth')
-            context.state.loading = false
+            try {
+              context.dispatch('Refresh')
+              context.dispatch('Load_project')
+            } catch (e) {
+              if (e.response.status === 400) {
+                router.push({
+                  name: 'Signin'
+                })
+              }
+            }
+          }
+        }
+      )
+    },
+    Load_Users (context) {
+      context.state.loading = true
+      console.log('requete vers user')
+      axios.get(
+        context.state.host + 'users/',
+        {headers: {
+          Authorization: 'Bearer ' + context.state.access
+        }}
+      ).then(
+        (res) => {
+          context.state.AllUsers = res.data
+          console.log('obtention des users succes')
+          context.state.loading = false
+        }
+      ).catch(
+        (e) => {
+          if (e.response.status === 401) {
+            try {
+              context.dispatch('Refresh')
+              context.dispatch('Load_Users')
+            } catch (e) {
+              if (e.response.status === 400) {
+                router.push({
+                  name: 'Signin'
+                })
+              }
+            }
           }
         }
       )
