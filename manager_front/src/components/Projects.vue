@@ -46,7 +46,8 @@ export default {
 
   methods: {
     reload (e) {
-      this.$store.dispatch('Load_project')
+      this.$store.state.data = 'projets'
+      this.$store.dispatch('Get')
     },
     popup_add: function (e) {
       console.log('pop up')

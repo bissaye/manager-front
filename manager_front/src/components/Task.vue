@@ -78,7 +78,8 @@ export default {
 
   methods: {
     reload (e) {
-      this.$store.dispatch('Load_task')
+      this.$store.state.data = 'taches'
+      this.$store.dispatch('Load')
     },
     popup_add: function (e) {
       console.log('pop up')

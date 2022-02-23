@@ -96,22 +96,6 @@ export default {
     }
   },
   methods: {
-    auth () {
-      console.log('refresh')
-      axios.post(this.$store.state.host + 'manager/token/refresh/', {'refresh': this.$store.state.refresh})
-        .then(
-          (res) => {
-            console.log(res.data)
-            this.$store.state.access = res.data.access
-          }
-        ).catch(
-          (e) => {
-            if (e.response.status === 400) {
-              this.$router.push('/signin')
-            }
-          }
-        )
-    },
     ObtainProjectID () {
       console.log('debut obtention de la cle du projet')
       for (let p in this.projets) {
@@ -146,7 +130,6 @@ export default {
         ).catch(
           (e) => {
             if (e.response.status === 401) {
-              this.auth()
               this.addTask()
               this.loading = false
               this.error = true

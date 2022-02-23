@@ -18,12 +18,13 @@ export default new Vuex.Store({
     todayTaches: [],
     projets: null,
     today: true,
+    data: '',
 
     // host for production
-    host: 'http://managerapi.herokuapp.com/',
+    // host: 'http://managerapi.herokuapp.com/',
 
     // host for debug
-    // host: 'http://localhost:8000/',
+    host: 'http://localhost:8000/',
     form: {}
   },
 
@@ -33,6 +34,8 @@ export default new Vuex.Store({
     }
   },
   actions: {
+
+    // fonction d'authentification
     auth (context) {
       context.state.loading = true
       axios.post(context.state.host + 'manager/token/', context.state.form)
@@ -42,11 +45,12 @@ export default new Vuex.Store({
             context.state.access = res.access
             context.state.refresh = res.refresh
             context.state.logged = true
-
-            context.dispatch('User_id')
-            context.dispatch('Load_task')
-            context.dispatch('Load_project')
-            context.dispatch('Load_Users')
+            let datas = ['userid', 'taches', 'projets', 'users']
+            datas.forEach(element => {
+              console.log(element)
+              context.state.data = element
+              context.dispatch('Load')
+            })
 
             context.state.error = false
             context.state.loading = false
@@ -61,6 +65,7 @@ export default new Vuex.Store({
         })
     },
 
+    // fonction pour le refresh
     Refresh (context) {
       axios.post(context.state.host + 'manager/token/refresh/', {'refresh': context.state.refresh})
         .then(
@@ -69,31 +74,8 @@ export default new Vuex.Store({
           }
         )
     },
-    User_id (context) {
-      context.state.loading = true
-      axios.get(
-        context.state.host + 'userid/',
-        {headers: {
-          Authorization: 'Bearer ' + context.state.access
-        }}
-      ).then(
-        (res) => {
-          context.state.user_id = res.data.id
-          context.state.loading = false
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            router.push({
-              name: 'Signin'
-            })
-            context.dispatch('auth')
-            context.state.loading = false
-          }
-        }
-      )
-    },
 
+    // fonction pour trouver les taches d'une journee donnees
     TodayTaches (context) {
       var dateDuJour = new Date(Date.now())
       for (let index in this.taches) {
@@ -105,88 +87,51 @@ export default new Vuex.Store({
       console.log('obtention des taches du jour')
     },
 
-    Load_task (context) {
+    // fonction pour les requetes vers les donnees
+    Get (context) {
+      console.log('chargement avec data = ' + context.state.data)
       context.state.loading = true
-      console.log('requete vers taches')
+      let chemin = context.state.host
+      if (context.state.data === 'taches') {
+        chemin = chemin + 'taches_user/'
+      } else if (context.state.data === 'projets') {
+        chemin = chemin + 'projet_user/'
+      } else if (context.state.data === 'users') {
+        chemin = chemin + 'users/'
+      } else if (context.state.data === 'userid') {
+        chemin = chemin + 'userid/'
+      }
+      console.log('requete vers ' + context.state.data)
       axios.get(
-        context.state.host + 'taches_user/',
+        chemin,
         {headers: {
           Authorization: 'Bearer ' + context.state.access
         }}
       ).then(
         (res) => {
-          context.state.taches = res.data
-          context.dispatch('TodayTaches')
-          console.log('obtention des taches succes')
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            try {
-              context.dispatch('Refresh')
-              context.dispatch('Load_task')
-            } catch (e) {
-              if (e.response.status === 400) {
-                router.push({
-                  name: 'Signin'
-                })
-              }
-            }
+          if (context.state.data === 'taches') {
+            context.state.taches = res.data
+            context.dispatch('TodayTaches')
+            console.log('obtention des taches succes')
+          } else if (context.state.data === 'projets') {
+            context.state.projets = res.data
+            console.log('obtention des projets succes')
+            context.state.loading = false
+          } else if (context.state.data === 'users') {
+            context.state.AllUsers = res.data
+            console.log('obtention des users succes')
+            context.state.loading = false
+          } else if (context.state.data === 'userid') {
+            context.state.user_id = res.data.id
+            context.state.loading = false
           }
         }
-      )
-    },
-    Load_project (context) {
-      context.state.loading = true
-      console.log('requete vers projets')
-      axios.get(
-        context.state.host + 'projet_user/',
-        {headers: {
-          Authorization: 'Bearer ' + context.state.access
-        }}
-      ).then(
-        (res) => {
-          context.state.projets = res.data
-          console.log('obtention des projets succes')
-          context.state.loading = false
-        }
       ).catch(
         (e) => {
           if (e.response.status === 401) {
             try {
               context.dispatch('Refresh')
-              context.dispatch('Load_project')
-            } catch (e) {
-              if (e.response.status === 400) {
-                router.push({
-                  name: 'Signin'
-                })
-              }
-            }
-          }
-        }
-      )
-    },
-    Load_Users (context) {
-      context.state.loading = true
-      console.log('requete vers user')
-      axios.get(
-        context.state.host + 'users/',
-        {headers: {
-          Authorization: 'Bearer ' + context.state.access
-        }}
-      ).then(
-        (res) => {
-          context.state.AllUsers = res.data
-          console.log('obtention des users succes')
-          context.state.loading = false
-        }
-      ).catch(
-        (e) => {
-          if (e.response.status === 401) {
-            try {
-              context.dispatch('Refresh')
-              context.dispatch('Load_Users')
+              context.dispatch('Load')
             } catch (e) {
               if (e.response.status === 400) {
                 router.push({
