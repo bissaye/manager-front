@@ -115,6 +115,7 @@ export default new Vuex.Store({
             context.state.taches = res.data
             context.dispatch('TodayTaches')
             console.log('obtention des taches succes')
+            context.state.loading = false
           } else if (context.state.data === 'projets') {
             context.state.projets = res.data
             console.log('obtention des projets succes')
@@ -137,6 +138,7 @@ export default new Vuex.Store({
             } catch (e) {
               if (e.response.status === 400) {
                 context.state.error = true
+                context.state.loading = false
                 router.push({
                   name: 'Signin'
                 })
@@ -154,9 +156,9 @@ export default new Vuex.Store({
       context.state.error = false
       let chemin = context.state.host
       if (context.state.data === 'taches') {
-        chemin = chemin + 'taches'
+        chemin = chemin + 'taches/'
       } else if (context.state.data === 'projets') {
-        chemin = chemin + 'projet'
+        chemin = chemin + 'projet/'
       }
       console.log('enregistrement de ' + context.state.data)
       axios.post(

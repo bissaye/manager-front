@@ -58,22 +58,11 @@ export default {
       Today: this.$store.state.today,
       taches: this.$store.state.taches,
       todayTaches: this.$store.state.todayTaches,
-      loading: false,
+      loading: this.$store.state.loading,
       detail: false,
       donnees: {},
       modifs: {}
     }
-  },
-
-  mounted () {
-    this.error = false
-    this.Today = this.$store.state.today
-    this.taches = this.$store.state.taches
-    this.todayTaches = this.$store.state.todayTaches
-    this.loading = this.$store.state.loading
-    this.detail = false
-    this.donnees = {}
-    this.modifs = {}
   },
 
   methods: {

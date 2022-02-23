@@ -9,7 +9,7 @@
           <label for="projet">Projet</label>
           <select class="form-control" name="projet"  v-model="nom_proj">
             <option value=""> Aucun </option>
-            <option v-for="proj in projets" :key="proj">{{ proj.nom }}</option>
+            <option v-for="(proj, id) in projets" :key="id">{{ proj.nom }}</option>
           </select>
         </div>
         <div class="form-group">
@@ -24,7 +24,7 @@
           <label for="asign">assigner a un utilisateur</label>
           <select class="form-control" name="asign"  v-model="nom_user">
             <option value=""> Aucun </option>
-            <option v-for="user in users" :key="user">{{ user.username }}</option>
+            <option v-for="(user, id) in users" :key="id">{{ user.username }}</option>
           </select>
         </div>
         <div class="form-group">
