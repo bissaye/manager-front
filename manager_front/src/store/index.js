@@ -38,6 +38,7 @@ export default new Vuex.Store({
     // fonction d'authentification
     auth (context) {
       context.state.loading = true
+      context.state.error = false
       axios.post(context.state.host + 'manager/token/', context.state.form)
         .then((res) => {
           if (res.status === 200) {
@@ -49,7 +50,7 @@ export default new Vuex.Store({
             datas.forEach(element => {
               console.log(element)
               context.state.data = element
-              context.dispatch('Load')
+              context.dispatch('Get')
             })
 
             context.state.error = false
@@ -87,10 +88,11 @@ export default new Vuex.Store({
       console.log('obtention des taches du jour')
     },
 
-    // fonction pour les requetes vers les donnees
+    // fonction pour les requetes en get vers les donnees
     Get (context) {
       console.log('chargement avec data = ' + context.state.data)
       context.state.loading = true
+      context.state.error = false
       let chemin = context.state.host
       if (context.state.data === 'taches') {
         chemin = chemin + 'taches_user/'
@@ -134,11 +136,49 @@ export default new Vuex.Store({
               context.dispatch('Load')
             } catch (e) {
               if (e.response.status === 400) {
+                context.state.error = true
                 router.push({
                   name: 'Signin'
                 })
               }
             }
+          }
+        }
+      )
+    },
+
+    // centralisation pour les requetes en post vers les donnees
+    Post (context) {
+      console.log('chargement avec data = ' + context.state.data)
+      context.state.loading = true
+      context.state.error = false
+      let chemin = context.state.host
+      if (context.state.data === 'taches') {
+        chemin = chemin + 'taches'
+      } else if (context.state.data === 'projets') {
+        chemin = chemin + 'projet'
+      }
+      console.log('enregistrement de ' + context.state.data)
+      axios.post(
+        chemin,
+        context.state.form,
+        {headers: {
+          Authorization: 'Bearer ' + context.state.access
+        }}
+      ).then(
+        (res) => {
+          console.log('ok')
+          context.state.loading = false
+          context.state.error = false
+        }
+      ).catch(
+        (e) => {
+          if (e.response.status === 401) {
+            context.dispatch('Refresh')
+            context.dispatch('Post')
+          } else {
+            context.state.loading = false
+            context.state.error = true
           }
         }
       )

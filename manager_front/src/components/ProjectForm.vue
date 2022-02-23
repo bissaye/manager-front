@@ -70,27 +70,9 @@ export default {
     addProject () {
       this.loading = true
       console.log(this.form)
-      axios.post(this.$store.state.host + 'projet/', this.form, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
-        .then(
-          (res) => {
-            console.log('ok')
-            this.loading = false
-            this.close()
-          }
-        ).catch(
-          (e) => {
-            if (e.response.status === 401) {
-              this.auth()
-              this.addProject()
-              this.loading = false
-              this.error = true
-            } else {
-              console.log(e.response)
-              this.loading = false
-              this.error = true
-            }
-          }
-        )
+      this.$store.commit('SetForm', this.form)
+      this.$store.state.data = 'projets'
+      this.$store.dispatch('Post')
     },
     close () {
       this.$emit('close')

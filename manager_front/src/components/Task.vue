@@ -70,7 +70,7 @@ export default {
     this.Today = this.$store.state.today
     this.taches = this.$store.state.taches
     this.todayTaches = this.$store.state.todayTaches
-    this.loading = false
+    this.loading = this.$store.state.loading
     this.detail = false
     this.donnees = {}
     this.modifs = {}
@@ -79,7 +79,7 @@ export default {
   methods: {
     reload (e) {
       this.$store.state.data = 'taches'
-      this.$store.dispatch('Load')
+      this.$store.dispatch('Get')
     },
     popup_add: function (e) {
       console.log('pop up')

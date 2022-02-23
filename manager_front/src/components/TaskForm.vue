@@ -64,7 +64,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import SelfLoading from './SelfLoading.vue'
 
 export default {
@@ -119,27 +118,9 @@ export default {
       this.ObtainProjectID()
       this.ObtainUserID()
       console.log(this.form)
-      axios.post(this.$store.state.host + 'taches/', this.form, {headers: { Authorization: 'Bearer ' + this.$store.state.access }})
-        .then(
-          (res) => {
-            console.log(res.data)
-            console.log('ok')
-            this.loading = false
-            this.close()
-          }
-        ).catch(
-          (e) => {
-            if (e.response.status === 401) {
-              this.addTask()
-              this.loading = false
-              this.error = true
-            } else {
-              console.log(e.response)
-              this.loading = false
-              this.error = true
-            }
-          }
-        )
+      this.$store.commit('SetForm', this.form)
+      this.$store.state.data = 'taches'
+      this.$store.dispatch('Post')
     },
     close () {
       this.$emit('close')

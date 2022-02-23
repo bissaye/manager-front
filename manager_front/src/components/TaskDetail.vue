@@ -95,7 +95,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default{
   name: 'TaskDetail',
   props: ['data'],
@@ -118,22 +117,6 @@ export default{
     this.nomUser = this.ObtainUserName(this.donne.user)
   },
   methods: {
-    auth () {
-      console.log('refresh')
-      axios.post(this.$store.state.host + 'manager/token/refresh/', {'refresh': this.$store.state.refresh})
-        .then(
-          (res) => {
-            console.log(res.data)
-            this.$store.state.access = res.data.access
-          }
-        ).catch(
-          (e) => {
-            if (e.response.status === 400) {
-              this.$router.push('/signin')
-            }
-          }
-        )
-    },
     ObtainProjectName () {
       console.log('debut obtention du nom du projet')
       for (let p in this.projets) {

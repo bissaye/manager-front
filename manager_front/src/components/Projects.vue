@@ -31,7 +31,7 @@ export default {
   data () {
     return {
       projets: this.$store.state.projets,
-      loading: false,
+      loading: this.$store.state.loading,
       detail: false,
       donnees: {}
     }
@@ -39,9 +39,6 @@ export default {
 
   mounted () {
     this.projets = this.$store.state.projets
-    this.loading = false
-    this.detail = false
-    this.donnees = {}
   },
 
   methods: {
